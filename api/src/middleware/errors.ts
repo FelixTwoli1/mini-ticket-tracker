@@ -17,7 +17,13 @@ export const notFoundHandler: RequestHandler = (req, _res, next) => {
 export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof z.ZodError) {
     res.status(400).json({
-      error: { message: 'Validation failed', details: z.flattenError(err).fieldErrors },
+      error: {
+        message: 'Validation failed',
+        details: err.issues.map((issue) => ({
+          field: issue.path.join('.') || undefined,
+          message: issue.message,
+        })),
+      },
     });
     return;
   }

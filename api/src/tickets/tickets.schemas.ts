@@ -19,3 +19,20 @@ export const listTicketsQuerySchema = z.object({
 });
 
 export type ListTicketsQuery = z.infer<typeof listTicketsQuerySchema>;
+
+export const ticketParamsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
+// The spec only allows status and priority to change after creation.
+export const updateTicketSchema = z
+  .object({
+    status: z.enum(TicketStatus).optional(),
+    priority: z.enum(TicketPriority).optional(),
+  })
+  .strict()
+  .refine((body) => body.status !== undefined || body.priority !== undefined, {
+    message: 'Provide status and/or priority',
+  });
+
+export type UpdateTicketInput = z.infer<typeof updateTicketSchema>;

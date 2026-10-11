@@ -1,5 +1,7 @@
 import { prisma } from '../db.js';
-import type { CreateTicketInput, ListTicketsQuery } from './tickets.schemas.js';
+import { Prisma } from '../generated/prisma/client.js';
+import { HttpError } from '../middleware/errors.js';
+import type { CreateTicketInput, ListTicketsQuery, UpdateTicketInput } from './tickets.schemas.js';
 
 export function createTicket(input: CreateTicketInput) {
   return prisma.ticket.create({ data: input });
@@ -24,4 +26,16 @@ export async function listTickets({ status, page, limit }: ListTicketsQuery) {
     data,
     meta: { page, limit, total, totalPages: Math.ceil(total / limit) },
   };
+}
+
+export async function updateTicket(id: number, input: UpdateTicketInput) {
+  try {
+    return await prisma.ticket.update({ where: { id }, data: input });
+  } catch (err) {
+    // P2025: record to update does not exist
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
+      throw new HttpError(404, `Ticket ${id} not found`);
+    }
+    throw err;
+  }
 }
