@@ -15,7 +15,27 @@ services:
       timeout: 3s
       retries: 20
 
+  api:
+    build: ./api
+    environment:
+      DATABASE_URL: postgresql://tickets:tickets@db:5432/tickets
+      PORT: 3000
+    ports:
+      - "${API_PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build: ./web
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      - api
+
+  # Only used by the API integration tests (npm test in ./api).
   db-test:
+    profiles: ["test"]
     image: postgres:17-alpine
     environment:
       POSTGRES_USER: tickets
