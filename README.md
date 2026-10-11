@@ -6,7 +6,7 @@ A small support-ticket tracker: a REST API, a PostgreSQL database and a single-p
 - **Database:** PostgreSQL 17
 - **UI:** Angular 21, TanStack Query, PrimeNG (Aura theme) and Tailwind CSS
 - **Tests:** Vitest + Supertest against a real PostgreSQL test database
-- **Runtime:** Docker Compose
+- **Runtime:** Docker Compose, pnpm workspace
 
 ## Quick start (Docker)
 
@@ -21,53 +21,39 @@ docker compose up --build
 
 Migrations run automatically when the API container starts. If a port is taken, override it, e.g. `WEB_PORT=8081 API_PORT=3001 DB_PORT=5440 docker compose up --build`.
 
-## Running from the repo root
+## Local development (pnpm workspace)
 
-After cloning, one `npm install` at the root installs the root, `api` and `web` dependencies. Every script starts the database it needs.
+The repo is a pnpm workspace with two packages, `api` and `web`, and one lockfile at the root. Requires Node.js 22.12+, pnpm 11 (`npm install -g pnpm` or `corepack enable`) and Docker.
+
+One-time setup from the repo root:
+
+```bash
+pnpm install                       # installs api + web, generates the Prisma client
+cp api/.env.example api/.env
+```
+
+Then, from the repo root:
 
 | Command | What it does |
 | ------- | ------------ |
-| `npm run dev` | Database in Docker, then API (http://localhost:3000) and UI (http://localhost:4200) with live reload |
-| `npm run dev:api` | Database + API only |
-| `npm run dev:web` | UI only (expects the API on port 3000) |
-| `npm test` | Test database + API integration tests |
-| `npm run docker` | Everything in Docker (same as the quick start) |
+| `pnpm dev` | Starts PostgreSQL, applies migrations, then runs the API (http://localhost:3000) and UI (http://localhost:4200) with live reload |
+| `pnpm dev:api` | Database + API only |
+| `pnpm dev:web` | UI only (proxies `/api` to the API on port 3000) |
+| `pnpm test` | Starts the test database and runs the API integration tests |
+| `pnpm build` | Builds both packages |
+| `pnpm docker` | Everything in Docker (same as the quick start) |
 
-The dev scripts stop the `api` and `web` containers first so ports 3000 and 4200 are free. For the API, copy `api/.env.example` to `api/.env` and run `npx prisma migrate deploy` in `api/` once (see below).
-
-## Local development, step by step (without containerising the app)
-
-Requires Node.js 22.12+ and Docker (for PostgreSQL).
-
-```bash
-# 1. Database
-docker compose up -d db
-
-# 2. API (http://localhost:3000)
-cd api
-cp .env.example .env
-npm install            # also generates the Prisma client
-npx prisma migrate deploy
-npm run dev
-
-# 3. UI (http://localhost:4200, proxies /api to the API)
-cd ../web
-npm install
-npm start
-```
+The dev scripts stop the `api` and `web` containers first so ports 3000 and 4200 are free. To run a script in one package directly, use a filter, e.g. `pnpm --filter api exec prisma studio`.
 
 ## Running the tests
 
 The integration tests hit the real HTTP layer and a separate PostgreSQL database, which is truncated before each test.
 
 ```bash
-docker compose --profile test up -d db-test
-cd api
-npm install
-npm test
+pnpm test
 ```
 
-If port 5433 is taken, run `TEST_DB_PORT=5440 docker compose --profile test up -d db-test` and set `TEST_DATABASE_URL=postgresql://tickets:tickets@localhost:5440/tickets_test` in `api/.env`.
+If port 5433 is taken, add `TEST_DB_PORT=5440` to a `.env` file in the repo root and set `TEST_DATABASE_URL=postgresql://tickets:tickets@localhost:5440/tickets_test` in `api/.env`.
 
 The tests cover creating a ticket (defaults and validation), filtering and pagination, updating status/priority (including 404 and rejected fields) and the stats endpoint.
 
@@ -123,6 +109,7 @@ web/
   src/app/ticket-list/        list, status filter, pagination, inline status change, "New ticket" dialog
   nginx.conf                  serves the UI and proxies /api to the API
 docker-compose.yml            db, api, web (+ db-test for tests)
+pnpm-workspace.yaml           workspace packages + allowed install scripts
 ```
 
 ## Decisions & Tradeoffs
