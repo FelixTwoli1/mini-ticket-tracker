@@ -3,10 +3,10 @@
     <h2>Tickets</h2>
     <label>
       Status
-      <select [value]="statusFilter()" (change)="onFilterChange($any($event.target).value)">
+      <select (change)="onFilterChange($any($event.target).value)">
         <option value="">All</option>
         @for (status of statuses; track status) {
-          <option [value]="status">{{ statusLabels[status] }}</option>
+          <option [value]="status" [selected]="status === statusFilter()">{{ statusLabels[status] }}</option>
         }
       </select>
     </label>
@@ -17,6 +17,9 @@
   } @else if (tickets.isError()) {
     <p class="error">Could not load tickets. Is the API running?</p>
   } @else {
+    @if (updateStatus.isError()) {
+      <p class="error">Could not update status: {{ apiErrorMessage(updateStatus.error()) }}</p>
+    }
     @let result = tickets.data()!;
 
     @if (result.data.length === 0) {
@@ -43,7 +46,17 @@
                 }
               </td>
               <td><span [class]="'badge priority-' + ticket.priority">{{ priorityLabels[ticket.priority] }}</span></td>
-              <td>{{ statusLabels[ticket.status] }}</td>
+              <td>
+                <select
+                  [attr.aria-label]="'Status of ticket ' + ticket.id"
+                  [disabled]="updateStatus.isPending() && updateStatus.variables().id === ticket.id"
+                  (change)="onStatusChange(ticket.id, $any($event.target).value)"
+                >
+                  @for (status of statuses; track status) {
+                    <option [value]="status" [selected]="status === ticket.status">{{ statusLabels[status] }}</option>
+                  }
+                </select>
+              </td>
               <td>{{ ticket.createdAt | date: 'd MMM, HH:mm' }}</td>
             </tr>
           }

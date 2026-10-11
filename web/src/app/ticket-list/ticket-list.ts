@@ -1,6 +1,12 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { injectQuery, keepPreviousData } from '@tanstack/angular-query-experimental';
+import {
+  injectMutation,
+  injectQuery,
+  keepPreviousData,
+  QueryClient,
+} from '@tanstack/angular-query-experimental';
+import { apiErrorMessage } from '../api-error';
 import { PRIORITY_LABELS, STATUS_LABELS } from '../labels';
 import { TICKET_STATUSES, TicketsApi, TicketStatus } from '../tickets.api';
 
@@ -11,11 +17,13 @@ import { TICKET_STATUSES, TicketsApi, TicketStatus } from '../tickets.api';
 })
 export class TicketList {
   private readonly api = inject(TicketsApi);
+  private readonly queryClient = inject(QueryClient);
 
   protected readonly statuses = TICKET_STATUSES;
   protected readonly statusLabels = STATUS_LABELS;
   protected readonly priorityLabels = PRIORITY_LABELS;
   protected readonly limit = 10;
+  protected readonly apiErrorMessage = apiErrorMessage;
 
   protected readonly statusFilter = signal<TicketStatus | ''>('');
   protected readonly page = signal(1);
@@ -33,8 +41,19 @@ export class TicketList {
     placeholderData: keepPreviousData,
   }));
 
+  protected readonly updateStatus = injectMutation(() => ({
+    mutationFn: ({ id, status }: { id: number; status: TicketStatus }) =>
+      this.api.update(id, { status }),
+    // A status change moves the ticket between filters and changes the counts.
+    onSettled: () => this.queryClient.invalidateQueries({ queryKey: ['tickets'] }),
+  }));
+
   protected onFilterChange(value: string) {
     this.statusFilter.set(value as TicketStatus | '');
     this.page.set(1);
+  }
+
+  protected onStatusChange(id: number, value: string) {
+    this.updateStatus.mutate({ id, status: value as TicketStatus });
   }
 }

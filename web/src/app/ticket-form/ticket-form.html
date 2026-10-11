@@ -1,0 +1,34 @@
+<section class="card">
+  <h2>New ticket</h2>
+  <form class="ticket-form" [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      Title
+      <input formControlName="title" maxlength="200" placeholder="e.g. Printer on floor 2 is offline" />
+    </label>
+    @if (form.controls.title.touched && form.controls.title.invalid) {
+      <span class="error">Title is required.</span>
+    }
+
+    <label>
+      <span>Description <span class="muted">(optional)</span></span>
+      <textarea formControlName="description" rows="2"></textarea>
+    </label>
+
+    <label>
+      Priority
+      <select formControlName="priority">
+        @for (priority of priorities; track priority) {
+          <option [value]="priority">{{ priorityLabels[priority] }}</option>
+        }
+      </select>
+    </label>
+
+    <button type="submit" [disabled]="createTicket.isPending()">
+      {{ createTicket.isPending() ? 'Creating...' : 'Create ticket' }}
+    </button>
+
+    @if (createTicket.isError()) {
+      <p class="error">{{ apiErrorMessage(createTicket.error()) }}</p>
+    }
+  </form>
+</section>
