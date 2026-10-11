@@ -25,14 +25,20 @@
       <p-message severity="error">Could not load tickets. Is the API running?</p-message>
     </div>
   } @else {
-    <p-table [value]="tickets.data()?.data ?? []" [loading]="tickets.isPending()" dataKey="id">
+    <!-- min-width + the table container's own overflow make it scroll sideways on narrow screens -->
+    <p-table
+      [value]="tickets.data()?.data ?? []"
+      [loading]="tickets.isPending()"
+      dataKey="id"
+      [tableStyle]="{ 'min-width': '34rem' }"
+    >
       <ng-template #header>
         <tr>
           <th class="w-16">#</th>
           <th>Title</th>
           <th class="w-28">Priority</th>
           <th class="w-44">Status</th>
-          <th class="w-36">Created</th>
+          <th class="hidden w-36 md:table-cell">Created</th>
         </tr>
       </ng-template>
       <ng-template #body let-ticket>
@@ -58,11 +64,11 @@
               [disabled]="updateStatus.isPending() && updateStatus.variables().id === ticket.id"
               appendTo="body"
               size="small"
-              styleClass="w-full"
+              styleClass="w-36"
               [ariaLabel]="'Status of ticket ' + ticket.id"
             />
           </td>
-          <td class="text-sm text-surface-500">{{ ticket.createdAt | date: 'd MMM, HH:mm' }}</td>
+          <td class="hidden text-sm text-surface-500 md:table-cell">{{ ticket.createdAt | date: 'd MMM, HH:mm' }}</td>
         </tr>
       </ng-template>
       <ng-template #emptymessage>
