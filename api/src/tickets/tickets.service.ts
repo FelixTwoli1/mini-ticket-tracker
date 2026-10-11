@@ -1,5 +1,6 @@
 import { prisma } from '../db.js';
 import { Prisma } from '../generated/prisma/client.js';
+import type { TicketStatus } from '../generated/prisma/enums.js';
 import { HttpError } from '../middleware/errors.js';
 import type { CreateTicketInput, ListTicketsQuery, UpdateTicketInput } from './tickets.schemas.js';
 
@@ -38,4 +39,15 @@ export async function updateTicket(id: number, input: UpdateTicketInput) {
     }
     throw err;
   }
+}
+
+export async function getTicketStats() {
+  const groups = await prisma.ticket.groupBy({ by: ['status'], _count: { _all: true } });
+
+  // Start every status at zero so clients always get the same three keys.
+  const stats: Record<TicketStatus, number> = { open: 0, in_progress: 0, closed: 0 };
+  for (const group of groups) {
+    stats[group.status] = group._count._all;
+  }
+  return stats;
 }

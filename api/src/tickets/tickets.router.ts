@@ -9,6 +9,10 @@ import * as tickets from './tickets.service.js';
 
 export const ticketsRouter = Router();
 
+ticketsRouter.get('/stats', async (_req, res) => {
+  res.json(await tickets.getTicketStats());
+});
+
 ticketsRouter.get('/', async (req, res) => {
   const query = listTicketsQuerySchema.parse(req.query);
   res.json(await tickets.listTickets(query));
