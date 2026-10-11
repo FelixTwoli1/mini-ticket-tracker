@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TicketStatus {
+  open
+  in_progress
+  closed
+}
+
+enum TicketPriority {
+  low
+  medium
+  high
+}
+
+model Ticket {
+  id          Int            @id @default(autoincrement())
+  title       String         @db.VarChar(200)
+  description String?
+  status      TicketStatus   @default(open)
+  priority    TicketPriority @default(medium)
+  createdAt   DateTime       @default(now()) @map("created_at")
+
+  @@index([status, createdAt(sort: Desc)])
+  @@map("tickets")
+}
