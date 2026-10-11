@@ -105,8 +105,8 @@ api/
 web/
   src/app/tickets.api.ts      typed API client
   src/app/stats-bar/          counts per status
-  src/app/ticket-form/        create form
-  src/app/ticket-list/        list, status filter, pagination, inline status change
+  src/app/ticket-form/        create form (opened in a dialog from the list)
+  src/app/ticket-list/        list, status filter, pagination, inline status change, "New ticket" dialog
   nginx.conf                  serves the UI and proxies /api to the API
 docker-compose.yml            db, api, web (+ db-test for tests)
 ```

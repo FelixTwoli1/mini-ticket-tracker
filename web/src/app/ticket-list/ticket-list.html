@@ -4,17 +4,20 @@
       <h2 class="text-lg font-semibold text-surface-900">Tickets</h2>
       <p class="text-sm text-surface-500">{{ tickets.data()?.meta?.total ?? 0 }} total, newest first</p>
     </div>
-    <p-select
-      [options]="statusOptions"
-      optionLabel="label"
-      optionValue="value"
-      placeholder="All statuses"
-      [showClear]="true"
-      [ngModel]="statusFilter()"
-      (ngModelChange)="onFilterChange($event)"
-      styleClass="w-48"
-      ariaLabel="Filter by status"
-    />
+    <div class="flex flex-wrap items-center gap-2">
+      <p-select
+        [options]="statusOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="All statuses"
+        [showClear]="true"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="onFilterChange($event)"
+        styleClass="w-48"
+        ariaLabel="Filter by status"
+      />
+      <p-button label="New ticket" icon="pi pi-plus" (onClick)="createDialogOpen.set(true)" />
+    </div>
   </header>
 
   @if (tickets.isError()) {
@@ -82,3 +85,19 @@
     }
   }
 </section>
+
+<p-dialog
+  header="New ticket"
+  [visible]="createDialogOpen()"
+  (visibleChange)="createDialogOpen.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [dismissableMask]="true"
+  [style]="{ width: '32rem' }"
+  [breakpoints]="{ '640px': '95vw' }"
+>
+  <!-- A template (not projected content) so the form is destroyed on close and every open starts empty. -->
+  <ng-template #content>
+    <app-ticket-form (created)="createDialogOpen.set(false)" (cancelled)="createDialogOpen.set(false)" />
+  </ng-template>
+</p-dialog>

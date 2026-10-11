@@ -1,51 +1,45 @@
-<section class="rounded-xl border border-surface-200 bg-white p-6 shadow-sm">
-  <h2 class="mb-1 text-lg font-semibold text-surface-900">New ticket</h2>
-  <p class="mb-5 text-sm text-surface-500">Log a support issue for the team.</p>
-
-  <form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="submit()">
-    <div class="flex flex-col gap-2">
-      <label for="title" class="text-sm font-medium">Title</label>
-      <input
-        pInputText
-        id="title"
-        formControlName="title"
-        maxlength="200"
-        placeholder="e.g. Printer on floor 2 is offline"
-        [invalid]="submitted() && form.controls.title.invalid"
-      />
-      @if (submitted() && form.controls.title.invalid) {
-        <p-message severity="error" size="small" variant="simple">Title is required.</p-message>
-      }
-    </div>
-
-    <div class="flex flex-col gap-2">
-      <label for="description" class="text-sm font-medium">
-        Description <span class="font-normal text-surface-400">(optional)</span>
-      </label>
-      <textarea pTextarea id="description" formControlName="description" rows="3" [autoResize]="true"></textarea>
-    </div>
-
-    <div class="flex flex-col gap-2">
-      <label for="priority" class="text-sm font-medium">Priority</label>
-      <p-select
-        inputId="priority"
-        formControlName="priority"
-        [options]="priorityOptions"
-        optionLabel="label"
-        optionValue="value"
-      />
-    </div>
-
-    <p-button
-      type="submit"
-      label="Create ticket"
-      icon="pi pi-plus"
-      styleClass="w-full"
-      [loading]="createTicket.isPending()"
+<form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="submit()">
+  <div class="flex flex-col gap-2">
+    <label for="title" class="text-sm font-medium">Title</label>
+    <input
+      pInputText
+      id="title"
+      formControlName="title"
+      maxlength="200"
+      placeholder="e.g. Printer on floor 2 is offline"
+      autofocus
+      [invalid]="submitted() && form.controls.title.invalid"
     />
-
-    @if (createTicket.isError()) {
-      <p-message severity="error">{{ apiErrorMessage(createTicket.error()) }}</p-message>
+    @if (submitted() && form.controls.title.invalid) {
+      <p-message severity="error" size="small" variant="simple">Title is required.</p-message>
     }
-  </form>
-</section>
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="description" class="text-sm font-medium">
+      Description <span class="font-normal text-surface-400">(optional)</span>
+    </label>
+    <textarea pTextarea id="description" formControlName="description" rows="3" [autoResize]="true"></textarea>
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label for="priority" class="text-sm font-medium">Priority</label>
+    <p-select
+      inputId="priority"
+      formControlName="priority"
+      [options]="priorityOptions"
+      optionLabel="label"
+      optionValue="value"
+      appendTo="body"
+    />
+  </div>
+
+  @if (createTicket.isError()) {
+    <p-message severity="error">{{ apiErrorMessage(createTicket.error()) }}</p-message>
+  }
+
+  <div class="flex justify-end gap-2 pt-2">
+    <p-button label="Cancel" severity="secondary" [text]="true" (onClick)="cancelled.emit()" />
+    <p-button type="submit" label="Create ticket" icon="pi pi-plus" [loading]="createTicket.isPending()" />
+  </div>
+</form>

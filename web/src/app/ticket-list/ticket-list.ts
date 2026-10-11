@@ -8,18 +8,32 @@ import {
   QueryClient,
 } from '@tanstack/angular-query-experimental';
 import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
 import { MessageModule } from 'primeng/message';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { TicketForm } from '../ticket-form/ticket-form';
 import { apiErrorMessage } from '../api-error';
 import { PRIORITY_LABELS, PRIORITY_SEVERITY, STATUS_OPTIONS } from '../labels';
 import { TicketPriority, TicketsApi, TicketStatus } from '../tickets.api';
 
 @Component({
   selector: 'app-ticket-list',
-  imports: [DatePipe, FormsModule, MessageModule, PaginatorModule, SelectModule, TableModule, TagModule],
+  imports: [
+    ButtonModule,
+    DatePipe,
+    DialogModule,
+    FormsModule,
+    MessageModule,
+    PaginatorModule,
+    SelectModule,
+    TableModule,
+    TagModule,
+    TicketForm,
+  ],
   templateUrl: './ticket-list.html',
 })
 export class TicketList {
@@ -31,6 +45,7 @@ export class TicketList {
   protected readonly apiErrorMessage = apiErrorMessage;
   protected readonly limit = 10;
 
+  protected readonly createDialogOpen = signal(false);
   protected readonly statusFilter = signal<TicketStatus | null>(null);
   protected readonly page = signal(1);
 
