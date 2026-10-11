@@ -30,7 +30,10 @@ describe('POST /tickets', () => {
       priority: 'medium',
     });
     expect(new Date(res.body.createdAt).getTime()).not.toBeNaN();
-    expect(await prisma.ticket.count()).toBe(1);
+
+    // Lowercase over the API, uppercase enums inside the app.
+    const stored = await prisma.ticket.findUniqueOrThrow({ where: { id: res.body.id } });
+    expect(stored).toMatchObject({ status: 'OPEN', priority: 'MEDIUM' });
   });
 
   it('rejects a ticket without a title', async () => {

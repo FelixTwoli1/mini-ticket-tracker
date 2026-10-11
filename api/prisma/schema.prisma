@@ -10,24 +10,25 @@ datasource db {
   provider = "postgresql"
 }
 
+// Uppercase names in code; @map keeps the lowercase values from the spec in the database.
 enum TicketStatus {
-  open
-  in_progress
-  closed
+  OPEN        @map("open")
+  IN_PROGRESS @map("in_progress")
+  CLOSED      @map("closed")
 }
 
 enum TicketPriority {
-  low
-  medium
-  high
+  LOW    @map("low")
+  MEDIUM @map("medium")
+  HIGH   @map("high")
 }
 
 model Ticket {
   id          Int            @id @default(autoincrement())
   title       String         @db.VarChar(200)
   description String?
-  status      TicketStatus   @default(open)
-  priority    TicketPriority @default(medium)
+  status      TicketStatus   @default(OPEN)
+  priority    TicketPriority @default(MEDIUM)
   createdAt   DateTime       @default(now()) @map("created_at")
 
   @@index([status, createdAt(sort: Desc)])
