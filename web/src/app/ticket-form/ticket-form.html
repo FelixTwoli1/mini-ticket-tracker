@@ -1,34 +1,51 @@
-<section class="card">
-  <h2>New ticket</h2>
-  <form class="ticket-form" [formGroup]="form" (ngSubmit)="submit()">
-    <label>
-      Title
-      <input formControlName="title" maxlength="200" placeholder="e.g. Printer on floor 2 is offline" />
-    </label>
-    @if (form.controls.title.touched && form.controls.title.invalid) {
-      <span class="error">Title is required.</span>
-    }
+<section class="rounded-xl border border-surface-200 bg-white p-6 shadow-sm">
+  <h2 class="mb-1 text-lg font-semibold text-surface-900">New ticket</h2>
+  <p class="mb-5 text-sm text-surface-500">Log a support issue for the team.</p>
 
-    <label>
-      <span>Description <span class="muted">(optional)</span></span>
-      <textarea formControlName="description" rows="2"></textarea>
-    </label>
+  <form class="flex flex-col gap-4" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="flex flex-col gap-2">
+      <label for="title" class="text-sm font-medium">Title</label>
+      <input
+        pInputText
+        id="title"
+        formControlName="title"
+        maxlength="200"
+        placeholder="e.g. Printer on floor 2 is offline"
+        [invalid]="submitted() && form.controls.title.invalid"
+      />
+      @if (submitted() && form.controls.title.invalid) {
+        <p-message severity="error" size="small" variant="simple">Title is required.</p-message>
+      }
+    </div>
 
-    <label>
-      Priority
-      <select formControlName="priority">
-        @for (priority of priorities; track priority) {
-          <option [value]="priority">{{ priorityLabels[priority] }}</option>
-        }
-      </select>
-    </label>
+    <div class="flex flex-col gap-2">
+      <label for="description" class="text-sm font-medium">
+        Description <span class="font-normal text-surface-400">(optional)</span>
+      </label>
+      <textarea pTextarea id="description" formControlName="description" rows="3" [autoResize]="true"></textarea>
+    </div>
 
-    <button type="submit" [disabled]="createTicket.isPending()">
-      {{ createTicket.isPending() ? 'Creating...' : 'Create ticket' }}
-    </button>
+    <div class="flex flex-col gap-2">
+      <label for="priority" class="text-sm font-medium">Priority</label>
+      <p-select
+        inputId="priority"
+        formControlName="priority"
+        [options]="priorityOptions"
+        optionLabel="label"
+        optionValue="value"
+      />
+    </div>
+
+    <p-button
+      type="submit"
+      label="Create ticket"
+      icon="pi pi-plus"
+      styleClass="w-full"
+      [loading]="createTicket.isPending()"
+    />
 
     @if (createTicket.isError()) {
-      <p class="error">{{ apiErrorMessage(createTicket.error()) }}</p>
+      <p-message severity="error">{{ apiErrorMessage(createTicket.error()) }}</p-message>
     }
   </form>
 </section>

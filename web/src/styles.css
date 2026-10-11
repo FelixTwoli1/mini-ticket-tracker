@@ -1,32 +1,8 @@
-:root {
-  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  color: #1f2933;
-  background: #f5f7fa;
+@import 'tailwindcss';
+@plugin 'tailwindcss-primeui';
+@import 'primeicons/primeicons.css';
+
+body {
+  @apply bg-surface-50 text-surface-800 antialiased;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
-
-body { margin: 0; }
-.container { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
-.card { background: #fff; border: 1px solid #e4e7eb; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-.toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.muted { color: #616e7c; font-size: 0.9em; }
-.error { color: #b42318; }
-
-table { width: 100%; border-collapse: collapse; }
-th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e4e7eb; vertical-align: top; }
-
-.badge { padding: 2px 8px; border-radius: 999px; font-size: 0.85em; }
-.priority-low { background: #e3f8e8; }
-.priority-medium { background: #fff4d6; }
-.priority-high { background: #fde2e1; }
-
-.pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
-button, input, select, textarea { font: inherit; }
-
-.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
-.stat { display: flex; flex-direction: column; gap: 4px; margin-bottom: 0; }
-.stat strong { font-size: 1.6em; }
-
-.ticket-form { display: grid; gap: 10px; max-width: 520px; }
-.ticket-form label { display: grid; gap: 4px; }
-.ticket-form input, .ticket-form textarea, .ticket-form select { padding: 6px 8px; }
-.ticket-form button { justify-self: start; padding: 6px 14px; }

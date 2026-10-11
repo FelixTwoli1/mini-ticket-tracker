@@ -1,73 +1,84 @@
-<section class="card">
-  <header class="toolbar">
-    <h2>Tickets</h2>
-    <label>
-      Status
-      <select (change)="onFilterChange($any($event.target).value)">
-        <option value="">All</option>
-        @for (status of statuses; track status) {
-          <option [value]="status" [selected]="status === statusFilter()">{{ statusLabels[status] }}</option>
-        }
-      </select>
-    </label>
+<section class="rounded-xl border border-surface-200 bg-white shadow-sm">
+  <header class="flex flex-wrap items-center justify-between gap-3 border-b border-surface-200 px-6 py-4">
+    <div>
+      <h2 class="text-lg font-semibold text-surface-900">Tickets</h2>
+      <p class="text-sm text-surface-500">{{ tickets.data()?.meta?.total ?? 0 }} total, newest first</p>
+    </div>
+    <p-select
+      [options]="statusOptions"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="All statuses"
+      [showClear]="true"
+      [ngModel]="statusFilter()"
+      (ngModelChange)="onFilterChange($event)"
+      styleClass="w-48"
+      ariaLabel="Filter by status"
+    />
   </header>
 
-  @if (tickets.isPending()) {
-    <p class="muted">Loading tickets...</p>
-  } @else if (tickets.isError()) {
-    <p class="error">Could not load tickets. Is the API running?</p>
+  @if (tickets.isError()) {
+    <div class="p-6">
+      <p-message severity="error">Could not load tickets. Is the API running?</p-message>
+    </div>
   } @else {
-    @if (updateStatus.isError()) {
-      <p class="error">Could not update status: {{ apiErrorMessage(updateStatus.error()) }}</p>
-    }
-    @let result = tickets.data()!;
+    <p-table [value]="tickets.data()?.data ?? []" [loading]="tickets.isPending()" dataKey="id">
+      <ng-template #header>
+        <tr>
+          <th class="w-16">#</th>
+          <th>Title</th>
+          <th class="w-28">Priority</th>
+          <th class="w-44">Status</th>
+          <th class="w-36">Created</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-ticket>
+        <tr>
+          <td class="text-surface-500">{{ ticket.id }}</td>
+          <td>
+            <p class="font-medium text-surface-900">{{ ticket.title }}</p>
+            @if (ticket.description) {
+              <p class="mt-0.5 text-sm text-surface-500">{{ ticket.description }}</p>
+            }
+          </td>
+          <td>
+            @let tag = priorityTag(ticket.priority);
+            <p-tag [value]="tag.label" [severity]="tag.severity" />
+          </td>
+          <td>
+            <p-select
+              [options]="statusOptions"
+              optionLabel="label"
+              optionValue="value"
+              [ngModel]="ticket.status"
+              (ngModelChange)="onStatusChange(ticket.id, $event)"
+              [disabled]="updateStatus.isPending() && updateStatus.variables().id === ticket.id"
+              appendTo="body"
+              size="small"
+              styleClass="w-full"
+              [ariaLabel]="'Status of ticket ' + ticket.id"
+            />
+          </td>
+          <td class="text-sm text-surface-500">{{ ticket.createdAt | date: 'd MMM, HH:mm' }}</td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5" class="py-10 text-center text-surface-500">
+            <i class="pi pi-inbox mb-2 block text-3xl"></i>
+            No tickets found.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
 
-    @if (result.data.length === 0) {
-      <p class="muted">No tickets found.</p>
-    } @else {
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Title</th>
-            <th>Priority</th>
-            <th>Status</th>
-            <th>Created</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (ticket of result.data; track ticket.id) {
-            <tr>
-              <td>{{ ticket.id }}</td>
-              <td>
-                <strong>{{ ticket.title }}</strong>
-                @if (ticket.description) {
-                  <div class="muted">{{ ticket.description }}</div>
-                }
-              </td>
-              <td><span [class]="'badge priority-' + ticket.priority">{{ priorityLabels[ticket.priority] }}</span></td>
-              <td>
-                <select
-                  [attr.aria-label]="'Status of ticket ' + ticket.id"
-                  [disabled]="updateStatus.isPending() && updateStatus.variables().id === ticket.id"
-                  (change)="onStatusChange(ticket.id, $any($event.target).value)"
-                >
-                  @for (status of statuses; track status) {
-                    <option [value]="status" [selected]="status === ticket.status">{{ statusLabels[status] }}</option>
-                  }
-                </select>
-              </td>
-              <td>{{ ticket.createdAt | date: 'd MMM, HH:mm' }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    @if (tickets.data(); as result) {
+      <p-paginator
+        [first]="(result.meta.page - 1) * limit"
+        [rows]="limit"
+        [totalRecords]="result.meta.total"
+        (onPageChange)="onPageChange($event)"
+      />
     }
-
-    <footer class="pagination">
-      <button type="button" [disabled]="page() <= 1" (click)="page.set(page() - 1)">Previous</button>
-      <span>Page {{ result.meta.page }} of {{ result.meta.totalPages || 1 }} ({{ result.meta.total }} tickets)</span>
-      <button type="button" [disabled]="page() >= result.meta.totalPages" (click)="page.set(page() + 1)">Next</button>
-    </footer>
   }
 </section>

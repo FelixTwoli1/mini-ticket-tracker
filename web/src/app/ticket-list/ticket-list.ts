@@ -1,31 +1,37 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import {
   injectMutation,
   injectQuery,
   keepPreviousData,
   QueryClient,
 } from '@tanstack/angular-query-experimental';
+import { MessageService } from 'primeng/api';
+import { MessageModule } from 'primeng/message';
+import { PaginatorModule, PaginatorState } from 'primeng/paginator';
+import { SelectModule } from 'primeng/select';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
 import { apiErrorMessage } from '../api-error';
-import { PRIORITY_LABELS, STATUS_LABELS } from '../labels';
-import { TICKET_STATUSES, TicketsApi, TicketStatus } from '../tickets.api';
+import { PRIORITY_LABELS, PRIORITY_SEVERITY, STATUS_OPTIONS } from '../labels';
+import { TicketPriority, TicketsApi, TicketStatus } from '../tickets.api';
 
 @Component({
   selector: 'app-ticket-list',
-  imports: [DatePipe],
+  imports: [DatePipe, FormsModule, MessageModule, PaginatorModule, SelectModule, TableModule, TagModule],
   templateUrl: './ticket-list.html',
 })
 export class TicketList {
   private readonly api = inject(TicketsApi);
   private readonly queryClient = inject(QueryClient);
+  private readonly messages = inject(MessageService);
 
-  protected readonly statuses = TICKET_STATUSES;
-  protected readonly statusLabels = STATUS_LABELS;
-  protected readonly priorityLabels = PRIORITY_LABELS;
-  protected readonly limit = 10;
+  protected readonly statusOptions = STATUS_OPTIONS;
   protected readonly apiErrorMessage = apiErrorMessage;
+  protected readonly limit = 10;
 
-  protected readonly statusFilter = signal<TicketStatus | ''>('');
+  protected readonly statusFilter = signal<TicketStatus | null>(null);
   protected readonly page = signal(1);
 
   // The key includes filter + page, so each combination is cached separately.
@@ -33,7 +39,7 @@ export class TicketList {
     queryKey: ['tickets', 'list', { status: this.statusFilter(), page: this.page() }],
     queryFn: () =>
       this.api.list({
-        status: this.statusFilter() || undefined,
+        status: this.statusFilter() ?? undefined,
         page: this.page(),
         limit: this.limit,
       }),
@@ -44,16 +50,30 @@ export class TicketList {
   protected readonly updateStatus = injectMutation(() => ({
     mutationFn: ({ id, status }: { id: number; status: TicketStatus }) =>
       this.api.update(id, { status }),
+    onError: (error) =>
+      this.messages.add({
+        severity: 'error',
+        summary: 'Could not update status',
+        detail: apiErrorMessage(error),
+      }),
     // A status change moves the ticket between filters and changes the counts.
     onSettled: () => this.queryClient.invalidateQueries({ queryKey: ['tickets'] }),
   }));
 
-  protected onFilterChange(value: string) {
-    this.statusFilter.set(value as TicketStatus | '');
+  protected priorityTag(priority: TicketPriority) {
+    return { label: PRIORITY_LABELS[priority], severity: PRIORITY_SEVERITY[priority] };
+  }
+
+  protected onFilterChange(status: TicketStatus | null) {
+    this.statusFilter.set(status);
     this.page.set(1);
   }
 
-  protected onStatusChange(id: number, value: string) {
-    this.updateStatus.mutate({ id, status: value as TicketStatus });
+  protected onPageChange({ page = 0 }: PaginatorState) {
+    this.page.set(page + 1);
+  }
+
+  protected onStatusChange(id: number, status: TicketStatus) {
+    this.updateStatus.mutate({ id, status });
   }
 }

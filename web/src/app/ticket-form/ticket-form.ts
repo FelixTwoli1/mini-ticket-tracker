@@ -1,22 +1,31 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { injectMutation, QueryClient } from '@tanstack/angular-query-experimental';
+import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
+import { SelectModule } from 'primeng/select';
+import { TextareaModule } from 'primeng/textarea';
 import { apiErrorMessage } from '../api-error';
-import { PRIORITY_LABELS } from '../labels';
-import { CreateTicketBody, TICKET_PRIORITIES, TicketsApi } from '../tickets.api';
+import { PRIORITY_OPTIONS } from '../labels';
+import { CreateTicketBody, TicketsApi } from '../tickets.api';
 
 @Component({
   selector: 'app-ticket-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, MessageModule, SelectModule, TextareaModule],
   templateUrl: './ticket-form.html',
 })
 export class TicketForm {
   private readonly api = inject(TicketsApi);
   private readonly queryClient = inject(QueryClient);
+  private readonly messages = inject(MessageService);
 
-  protected readonly priorities = TICKET_PRIORITIES;
-  protected readonly priorityLabels = PRIORITY_LABELS;
+  protected readonly priorityOptions = PRIORITY_OPTIONS;
   protected readonly apiErrorMessage = apiErrorMessage;
+
+  // Errors show after a submit attempt, not while the user is still filling in the form.
+  protected readonly submitted = signal(false);
 
   protected readonly form = inject(NonNullableFormBuilder).group({
     title: ['', [Validators.required, Validators.maxLength(200)]],
@@ -26,18 +35,18 @@ export class TicketForm {
 
   protected readonly createTicket = injectMutation(() => ({
     mutationFn: (body: CreateTicketBody) => this.api.create(body),
-    onSuccess: () => {
+    onSuccess: (ticket) => {
       this.form.reset();
+      this.submitted.set(false);
+      this.messages.add({ severity: 'success', summary: 'Ticket created', detail: ticket.title });
       // Refreshes every list page and the stats, which all live under 'tickets'.
       return this.queryClient.invalidateQueries({ queryKey: ['tickets'] });
     },
   }));
 
   protected submit() {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
+    this.submitted.set(true);
+    if (this.form.invalid) return;
     const { title, description, priority } = this.form.getRawValue();
     this.createTicket.mutate({
       title: title.trim(),
