@@ -11,3 +11,11 @@ export const createTicketSchema = z
   .strict();
 
 export type CreateTicketInput = z.infer<typeof createTicketSchema>;
+
+export const listTicketsQuerySchema = z.object({
+  status: z.enum(TicketStatus).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+
+export type ListTicketsQuery = z.infer<typeof listTicketsQuerySchema>;

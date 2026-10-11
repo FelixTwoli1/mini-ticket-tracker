@@ -1,8 +1,13 @@
 import { Router } from 'express';
-import { createTicketSchema } from './tickets.schemas.js';
+import { createTicketSchema, listTicketsQuerySchema } from './tickets.schemas.js';
 import * as tickets from './tickets.service.js';
 
 export const ticketsRouter = Router();
+
+ticketsRouter.get('/', async (req, res) => {
+  const query = listTicketsQuerySchema.parse(req.query);
+  res.json(await tickets.listTickets(query));
+});
 
 ticketsRouter.post('/', async (req, res) => {
   const input = createTicketSchema.parse(req.body);
