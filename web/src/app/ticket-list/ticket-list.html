@@ -1,0 +1,60 @@
+<section class="card">
+  <header class="toolbar">
+    <h2>Tickets</h2>
+    <label>
+      Status
+      <select [value]="statusFilter()" (change)="onFilterChange($any($event.target).value)">
+        <option value="">All</option>
+        @for (status of statuses; track status) {
+          <option [value]="status">{{ statusLabels[status] }}</option>
+        }
+      </select>
+    </label>
+  </header>
+
+  @if (tickets.isPending()) {
+    <p class="muted">Loading tickets...</p>
+  } @else if (tickets.isError()) {
+    <p class="error">Could not load tickets. Is the API running?</p>
+  } @else {
+    @let result = tickets.data()!;
+
+    @if (result.data.length === 0) {
+      <p class="muted">No tickets found.</p>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (ticket of result.data; track ticket.id) {
+            <tr>
+              <td>{{ ticket.id }}</td>
+              <td>
+                <strong>{{ ticket.title }}</strong>
+                @if (ticket.description) {
+                  <div class="muted">{{ ticket.description }}</div>
+                }
+              </td>
+              <td><span [class]="'badge priority-' + ticket.priority">{{ priorityLabels[ticket.priority] }}</span></td>
+              <td>{{ statusLabels[ticket.status] }}</td>
+              <td>{{ ticket.createdAt | date: 'd MMM, HH:mm' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+
+    <footer class="pagination">
+      <button type="button" [disabled]="page() <= 1" (click)="page.set(page() - 1)">Previous</button>
+      <span>Page {{ result.meta.page }} of {{ result.meta.totalPages || 1 }} ({{ result.meta.total }} tickets)</span>
+      <button type="button" [disabled]="page() >= result.meta.totalPages" (click)="page.set(page() + 1)">Next</button>
+    </footer>
+  }
+</section>
