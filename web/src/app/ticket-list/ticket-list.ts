@@ -17,7 +17,7 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TicketForm } from '../ticket-form/ticket-form';
 import { apiErrorMessage } from '../api-error';
-import { PRIORITY_LABELS, PRIORITY_SEVERITY, STATUS_OPTIONS } from '../labels';
+import { PRIORITY_LABELS, PRIORITY_SEVERITY, STATUS_LABELS, STATUS_OPTIONS } from '../labels';
 import { TicketPriority, TicketsApi, TicketStatus } from '../tickets.api';
 
 @Component({
@@ -65,6 +65,12 @@ export class TicketList {
   protected readonly updateStatus = injectMutation(() => ({
     mutationFn: ({ id, status }: { id: number; status: TicketStatus }) =>
       this.api.update(id, { status }),
+    onSuccess: (ticket) =>
+      this.messages.add({
+        severity: 'success',
+        summary: 'Status updated',
+        detail: `#${ticket.id} ${ticket.title} is now ${STATUS_LABELS[ticket.status]}`,
+      }),
     onError: (error) =>
       this.messages.add({
         severity: 'error',
