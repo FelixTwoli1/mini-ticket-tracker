@@ -1,0 +1,16 @@
+{
+  "name": "mini-ticket-tracker",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm --prefix api install && npm --prefix web install",
+    "db": "docker compose stop api web && docker compose up -d --wait db",
+    "dev": "npm run db && concurrently -k -n api,web -c blue,green \"npm --prefix api run dev\" \"npm --prefix web start\"",
+    "dev:api": "npm run db && npm --prefix api run dev",
+    "dev:web": "npm --prefix web start",
+    "test": "docker compose --profile test up -d --wait db-test && npm --prefix api test",
+    "docker": "docker compose up --build"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}

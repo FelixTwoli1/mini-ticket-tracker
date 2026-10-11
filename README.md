@@ -21,7 +21,21 @@ docker compose up --build
 
 Migrations run automatically when the API container starts. If a port is taken, override it, e.g. `WEB_PORT=8081 API_PORT=3001 DB_PORT=5440 docker compose up --build`.
 
-## Local development (without containerising the app)
+## Running from the repo root
+
+After cloning, one `npm install` at the root installs the root, `api` and `web` dependencies. Every script starts the database it needs.
+
+| Command | What it does |
+| ------- | ------------ |
+| `npm run dev` | Database in Docker, then API (http://localhost:3000) and UI (http://localhost:4200) with live reload |
+| `npm run dev:api` | Database + API only |
+| `npm run dev:web` | UI only (expects the API on port 3000) |
+| `npm test` | Test database + API integration tests |
+| `npm run docker` | Everything in Docker (same as the quick start) |
+
+The dev scripts stop the `api` and `web` containers first so ports 3000 and 4200 are free. For the API, copy `api/.env.example` to `api/.env` and run `npx prisma migrate deploy` in `api/` once (see below).
+
+## Local development, step by step (without containerising the app)
 
 Requires Node.js 22.12+ and Docker (for PostgreSQL).
 
