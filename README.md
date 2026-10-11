@@ -53,6 +53,8 @@ npm install
 npm test
 ```
 
+If port 5433 is taken, run `TEST_DB_PORT=5440 docker compose --profile test up -d db-test` and set `TEST_DATABASE_URL=postgresql://tickets:tickets@localhost:5440/tickets_test` in `api/.env`.
+
 The tests cover creating a ticket (defaults and validation), filtering and pagination, updating status/priority (including 404 and rejected fields) and the stats endpoint.
 
 ## API
