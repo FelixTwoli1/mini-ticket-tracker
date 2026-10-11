@@ -42,6 +42,9 @@ Then, from the repo root:
 | `pnpm test` | Starts the test database and runs the API integration tests |
 | `pnpm build` | Builds both packages |
 | `pnpm docker` | Everything in Docker (same as the quick start) |
+| `pnpm docker:up` | Everything in Docker, in the background (waits until healthy) |
+| `pnpm docker:down` | Stops and removes all containers (including the test database); tickets are kept in the database volume |
+| `pnpm docker:logs` | Follows API and UI container logs |
 
 The dev scripts stop the `api` and `web` containers first so ports 3000 and 4200 are free. To run a script in one package directly, use a filter, e.g. `pnpm --filter api exec prisma studio`.
 

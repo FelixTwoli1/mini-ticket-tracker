@@ -9,6 +9,9 @@
     "dev:web": "pnpm --filter web dev",
     "test": "docker compose --profile test up -d --wait db-test && pnpm --filter api test",
     "build": "pnpm -r build",
-    "docker": "docker compose up --build"
+    "docker": "docker compose up --build",
+    "docker:up": "docker compose up -d --build --wait",
+    "docker:down": "docker compose --profile test down",
+    "docker:logs": "docker compose logs -f api web"
   }
 }
