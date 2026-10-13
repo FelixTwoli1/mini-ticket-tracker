@@ -1,5 +1,7 @@
 import express from 'express';
+import swaggerUi from 'swagger-ui-express';
 import { errorHandler, notFoundHandler } from './middleware/errors.js';
+import { openApiDocument } from './openapi.js';
 import { ticketsRouter } from './tickets/tickets.router.js';
 
 export function createApp() {
@@ -9,6 +11,11 @@ export function createApp() {
   app.get('/health', (_req, res) => {
     res.json({ status: 'ok' });
   });
+
+  app.get('/openapi.json', (_req, res) => {
+    res.json(openApiDocument);
+  });
+  app.use('/docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));
 
   app.use('/tickets', ticketsRouter);
 

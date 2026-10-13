@@ -6,6 +6,8 @@ packages:
 allowBuilds:
   '@parcel/watcher': true
   '@prisma/engines': true
+  # Install-time usage analytics pulled in by swagger-ui-dist; not needed.
+  '@scarf/scarf': false
   esbuild: true
   lmdb: true
   msgpackr-extract: true

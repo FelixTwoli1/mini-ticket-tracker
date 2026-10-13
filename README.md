@@ -2,7 +2,7 @@
 
 A small support-ticket tracker: a REST API, a PostgreSQL database and a single-page UI.
 
-- **API:** Node.js, Express 5, TypeScript, Prisma, zod
+- **API:** Node.js, Express 5, TypeScript, Prisma, zod, OpenAPI (Swagger UI)
 - **Database:** PostgreSQL 17
 - **UI:** Angular 21, TanStack Query, PrimeNG (Aura theme) and Tailwind CSS
 - **Tests:** Vitest + Supertest against a real PostgreSQL test database
@@ -41,6 +41,7 @@ Then, from the repo root:
 | `pnpm dev:web` | UI only (proxies `/api` to the API on port 3000) |
 | `pnpm test` | Starts the test database and runs the API integration tests |
 | `pnpm build` | Builds both packages |
+| `pnpm typecheck` | Type-checks both packages, including the API tests and config files |
 | `pnpm docker` | Everything in Docker (same as the quick start) |
 | `pnpm docker:up` | Everything in Docker, in the background (waits until healthy) |
 | `pnpm docker:down` | Stops and removes all containers (including the test database); tickets are kept in the database volume |
@@ -58,9 +59,11 @@ pnpm test
 
 If port 5433 is taken, add `TEST_DB_PORT=5440` to a `.env` file in the repo root and set `TEST_DATABASE_URL=postgresql://tickets:tickets@localhost:5440/tickets_test` in `api/.env`.
 
-The tests cover creating a ticket (defaults and validation), filtering and pagination, updating status/priority (including 404 and rejected fields) and the stats endpoint.
+The tests cover creating a ticket (defaults and validation), filtering and pagination, updating status/priority (including 404 and rejected fields), the stats endpoint and the OpenAPI document.
 
 ## API
+
+Interactive docs (Swagger UI) are at **http://localhost:3000/docs**, and the raw OpenAPI 3.1 document at http://localhost:3000/openapi.json. The document is generated from the same zod schemas that validate requests (`api/src/openapi.ts`), so it stays in sync with the code.
 
 | Method | Path | Description |
 | ------ | ---- | ----------- |
@@ -101,6 +104,8 @@ curl localhost:3000/tickets/stats
 api/
   prisma/schema.prisma        data model (enums, index) + migrations/
   src/app.ts                  express app (imported by tests)
+  src/env.ts                  validated environment variables (zod)
+  src/openapi.ts              OpenAPI document generated from the zod schemas
   src/tickets/                router (HTTP) -> service (Prisma queries), zod schemas,
                               mapper (uppercase enums <-> lowercase API values)
   src/middleware/errors.ts    consistent JSON errors

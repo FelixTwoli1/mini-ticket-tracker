@@ -103,3 +103,16 @@ describe('GET /tickets/stats', () => {
     expect(res.body).toEqual({ open: 2, in_progress: 0, closed: 1 });
   });
 });
+
+describe('GET /openapi.json', () => {
+  it('documents every ticket endpoint', async () => {
+    const res = await request(app).get('/openapi.json');
+
+    expect(res.status).toBe(200);
+    expect(res.body.openapi).toBe('3.1.0');
+    expect(Object.keys(res.body.paths)).toEqual(
+      expect.arrayContaining(['/tickets', '/tickets/{id}', '/tickets/stats']),
+    );
+    expect(Object.keys(res.body.paths['/tickets'])).toEqual(['get', 'post']);
+  });
+});
