@@ -7,14 +7,20 @@ export class HttpError extends Error {
     message: string,
   ) {
     super(message);
+    this.name = 'HttpError';
   }
+}
+
+// express.json() reports malformed JSON as a SyntaxError tagged with type 'entity.parse.failed'.
+function isJsonParseError(err: unknown): boolean {
+  return err instanceof SyntaxError && 'type' in err && err.type === 'entity.parse.failed';
 }
 
 export const notFoundHandler: RequestHandler = (req, _res, next) => {
   next(new HttpError(404, `Route ${req.method} ${req.path} not found`));
 };
 
-export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
+export const errorHandler: ErrorRequestHandler = (err: unknown, _req, res, _next) => {
   if (err instanceof z.ZodError) {
     res.status(400).json({
       error: {
@@ -33,8 +39,7 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
     return;
   }
 
-  // Malformed JSON body from express.json()
-  if (err?.type === 'entity.parse.failed') {
+  if (isJsonParseError(err)) {
     res.status(400).json({ error: { message: 'Request body is not valid JSON' } });
     return;
   }

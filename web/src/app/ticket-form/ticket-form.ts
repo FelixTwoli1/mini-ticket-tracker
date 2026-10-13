@@ -9,7 +9,7 @@ import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { apiErrorMessage } from '../api-error';
 import { PRIORITY_OPTIONS } from '../labels';
-import { type CreateTicketBody, type Ticket, TicketsApi } from '../tickets.api';
+import { type CreateTicketBody, type Ticket, type TicketPriority, TicketsApi } from '../tickets.api';
 
 @Component({
   selector: 'app-ticket-form',
@@ -30,10 +30,11 @@ export class TicketForm {
   // Errors show after a submit attempt, not while the user is still filling in the form.
   protected readonly submitted = signal(false);
 
-  protected readonly form = inject(NonNullableFormBuilder).group({
+  private readonly fb = inject(NonNullableFormBuilder);
+  protected readonly form = this.fb.group({
     title: ['', [Validators.required, Validators.maxLength(200)]],
     description: [''],
-    priority: ['medium' as CreateTicketBody['priority']],
+    priority: this.fb.control<TicketPriority>('medium'),
   });
 
   protected readonly createTicket = injectMutation(() => ({
