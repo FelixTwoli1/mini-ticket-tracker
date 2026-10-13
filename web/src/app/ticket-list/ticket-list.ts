@@ -11,14 +11,14 @@ import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { MessageModule } from 'primeng/message';
-import { PaginatorModule, PaginatorState } from 'primeng/paginator';
+import { PaginatorModule, type PaginatorState } from 'primeng/paginator';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TicketForm } from '../ticket-form/ticket-form';
 import { apiErrorMessage } from '../api-error';
 import { PRIORITY_LABELS, PRIORITY_SEVERITY, STATUS_LABELS, STATUS_OPTIONS } from '../labels';
-import { TicketPriority, TicketsApi, TicketStatus } from '../tickets.api';
+import { type TicketPriority, TicketsApi, type TicketStatus } from '../tickets.api';
 
 @Component({
   selector: 'app-ticket-list',

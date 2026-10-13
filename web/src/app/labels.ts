@@ -1,4 +1,4 @@
-import { TicketPriority, TicketStatus } from './tickets.api';
+import type { TicketPriority, TicketStatus } from './tickets.api';
 
 type TagSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
 

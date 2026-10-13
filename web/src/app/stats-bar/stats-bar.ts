@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { injectQuery } from '@tanstack/angular-query-experimental';
 import { SkeletonModule } from 'primeng/skeleton';
 import { STATUS_LABELS } from '../labels';
-import { TICKET_STATUSES, TicketsApi, TicketStatus } from '../tickets.api';
+import { TICKET_STATUSES, TicketsApi, type TicketStatus } from '../tickets.api';
 
 const STATUS_STYLE: Record<TicketStatus, { icon: string; accent: string }> = {
   open: { icon: 'pi pi-inbox', accent: 'bg-sky-50 text-sky-600' },

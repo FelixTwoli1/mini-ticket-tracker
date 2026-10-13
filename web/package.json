@@ -5,7 +5,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "dev": "ng serve"
+    "dev": "ng serve",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit"
   },
   "private": true,
   "dependencies": {

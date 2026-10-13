@@ -7,7 +7,7 @@ COPY api/package.json api/
 COPY api/prisma api/prisma
 COPY api/prisma.config.ts api/
 RUN pnpm install --frozen-lockfile --filter api
-COPY api/tsconfig.json api/
+COPY api/tsconfig.json api/tsconfig.build.json api/
 COPY api/src api/src
 RUN pnpm --filter api build
 

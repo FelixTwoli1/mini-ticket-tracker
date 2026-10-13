@@ -9,7 +9,7 @@ import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { apiErrorMessage } from '../api-error';
 import { PRIORITY_OPTIONS } from '../labels';
-import { CreateTicketBody, Ticket, TicketsApi } from '../tickets.api';
+import { type CreateTicketBody, type Ticket, TicketsApi } from '../tickets.api';
 
 @Component({
   selector: 'app-ticket-form',
