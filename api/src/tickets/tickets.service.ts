@@ -8,8 +8,9 @@ export async function createTicket(input: CreateTicketInput) {
   return toApiTicket(await prisma.ticket.create({ data: input }));
 }
 
-export async function listTickets({ status, page, limit }: ListTicketsQuery) {
-  const where = status ? { status } : {};
+export async function listTickets({ status, priority, page, limit }: ListTicketsQuery) {
+  // Filters combine with AND; an omitted filter is left out of the query.
+  const where = { ...(status && { status }), ...(priority && { priority }) };
 
   // Count and page in one transaction so meta.total matches the data snapshot.
   const [total, data] = await prisma.$transaction([

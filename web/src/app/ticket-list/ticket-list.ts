@@ -17,7 +17,13 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TicketForm } from '../ticket-form/ticket-form';
 import { apiErrorMessage } from '../api-error';
-import { PRIORITY_LABELS, PRIORITY_SEVERITY, STATUS_LABELS, STATUS_OPTIONS } from '../labels';
+import {
+  PRIORITY_LABELS,
+  PRIORITY_OPTIONS,
+  PRIORITY_SEVERITY,
+  STATUS_LABELS,
+  STATUS_OPTIONS,
+} from '../labels';
 import { type TicketPriority, TicketsApi, type TicketStatus } from '../tickets.api';
 
 @Component({
@@ -42,19 +48,26 @@ export class TicketList {
   private readonly messages = inject(MessageService);
 
   protected readonly statusOptions = STATUS_OPTIONS;
+  protected readonly priorityOptions = PRIORITY_OPTIONS;
   protected readonly apiErrorMessage = apiErrorMessage;
   protected readonly limit = 10;
 
   protected readonly createDialogOpen = signal(false);
   protected readonly statusFilter = signal<TicketStatus | null>(null);
+  protected readonly priorityFilter = signal<TicketPriority | null>(null);
   protected readonly page = signal(1);
 
-  // The key includes filter + page, so each combination is cached separately.
+  // The key includes the filters + page, so each combination is cached separately.
   protected readonly tickets = injectQuery(() => ({
-    queryKey: ['tickets', 'list', { status: this.statusFilter(), page: this.page() }],
+    queryKey: [
+      'tickets',
+      'list',
+      { status: this.statusFilter(), priority: this.priorityFilter(), page: this.page() },
+    ],
     queryFn: () =>
       this.api.list({
         status: this.statusFilter() ?? undefined,
+        priority: this.priorityFilter() ?? undefined,
         page: this.page(),
         limit: this.limit,
       }),
@@ -85,8 +98,13 @@ export class TicketList {
     return { label: PRIORITY_LABELS[priority], severity: PRIORITY_SEVERITY[priority] };
   }
 
-  protected onFilterChange(status: TicketStatus | null) {
+  protected onStatusFilterChange(status: TicketStatus | null) {
     this.statusFilter.set(status);
+    this.page.set(1);
+  }
+
+  protected onPriorityFilterChange(priority: TicketPriority | null) {
+    this.priorityFilter.set(priority);
     this.page.set(1);
   }
 

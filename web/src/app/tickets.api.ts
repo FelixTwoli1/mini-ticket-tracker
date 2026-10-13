@@ -26,6 +26,7 @@ export type TicketStats = Record<TicketStatus, number>;
 
 export interface ListTicketsParams {
   status?: TicketStatus;
+  priority?: TicketPriority;
   page: number;
   limit: number;
 }
@@ -44,9 +45,10 @@ export class TicketsApi {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = '/api/tickets';
 
-  list({ status, page, limit }: ListTicketsParams) {
+  list({ status, priority, page, limit }: ListTicketsParams) {
     let params = new HttpParams().set('page', page).set('limit', limit);
     if (status) params = params.set('status', status);
+    if (priority) params = params.set('priority', priority);
     return lastValueFrom(this.http.get<TicketPage>(this.baseUrl, { params }));
   }
 

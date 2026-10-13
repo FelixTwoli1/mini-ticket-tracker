@@ -68,7 +68,7 @@ Interactive docs (Swagger UI) are at **http://localhost:3000/docs**, and the raw
 | Method | Path | Description |
 | ------ | ---- | ----------- |
 | `POST` | `/tickets` | Create a ticket. Body: `title` (required, max 200), `description?`, `priority?`, `status?` |
-| `GET` | `/tickets` | List tickets, newest first. Query: `status?`, `page` (default 1), `limit` (default 20, max 100) |
+| `GET` | `/tickets` | List tickets, newest first. Query: `status?`, `priority?` (combined with AND), `page` (default 1), `limit` (default 20, max 100) |
 | `PATCH` | `/tickets/:id` | Update `status` and/or `priority` (no other fields) |
 | `GET` | `/tickets/stats` | Ticket counts per status, e.g. `{ "open": 3, "in_progress": 1, "closed": 0 }` |
 

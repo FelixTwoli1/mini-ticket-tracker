@@ -57,8 +57,30 @@ describe('GET /tickets', () => {
     expect(res.body.data.map((t: { title: string }) => t.title)).toEqual(['A']);
   });
 
+  it('filters by priority, alone and combined with status', async () => {
+    await createTicket({ title: 'Urgent open', priority: 'high' });
+    await createTicket({ title: 'Urgent closed', priority: 'high', status: 'closed' });
+    await createTicket({ title: 'Minor', priority: 'low' });
+
+    const high = await request(app).get('/tickets?priority=high');
+    expect(high.body.data.map((t: { title: string }) => t.title)).toEqual([
+      'Urgent closed',
+      'Urgent open',
+    ]);
+
+    const highOpen = await request(app).get('/tickets?priority=high&status=open');
+    expect(highOpen.body.data.map((t: { title: string }) => t.title)).toEqual(['Urgent open']);
+    expect(highOpen.body.meta.total).toBe(1);
+  });
+
   it('rejects an unknown status filter', async () => {
     const res = await request(app).get('/tickets?status=pending');
+
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects an unknown priority filter', async () => {
+    const res = await request(app).get('/tickets?priority=urgent');
 
     expect(res.status).toBe(400);
   });

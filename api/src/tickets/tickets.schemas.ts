@@ -23,6 +23,7 @@ export type CreateTicketInput = z.infer<typeof createTicketSchema>;
 
 export const listTicketsQuerySchema = z.object({
   status: statusSchema.optional(),
+  priority: prioritySchema.optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });

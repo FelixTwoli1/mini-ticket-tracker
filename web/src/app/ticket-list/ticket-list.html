@@ -12,9 +12,20 @@
         placeholder="All statuses"
         [showClear]="true"
         [ngModel]="statusFilter()"
-        (ngModelChange)="onFilterChange($event)"
-        styleClass="w-48"
+        (ngModelChange)="onStatusFilterChange($event)"
+        styleClass="w-44"
         ariaLabel="Filter by status"
+      />
+      <p-select
+        [options]="priorityOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="All priorities"
+        [showClear]="true"
+        [ngModel]="priorityFilter()"
+        (ngModelChange)="onPriorityFilterChange($event)"
+        styleClass="w-44"
+        ariaLabel="Filter by priority"
       />
       <p-button label="New ticket" icon="pi pi-plus" (onClick)="createDialogOpen.set(true)" />
     </div>
